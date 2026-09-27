@@ -33,6 +33,7 @@ class WardrobeItem(Base):
     category = Column(String, nullable=False)
     subcategory = Column(String, nullable=True)
     colour = Column(String, nullable=True)
+    colour_detailed = Column(String, nullable=True)
     pattern = Column(String, nullable=True)
     style = Column(String, nullable=True)
     fit = Column(String, nullable=True)
