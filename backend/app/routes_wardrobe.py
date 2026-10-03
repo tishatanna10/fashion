@@ -142,3 +142,23 @@ def update_wardrobe_item(
     db.commit()
     db.refresh(item)
     return _item_response(item)
+
+
+@router.delete("/{item_id}")
+def delete_wardrobe_item(item_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    item = db.get(WardrobeItem, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Wardrobe item not found")
+
+    original_path = UPLOAD_DIR / Path(item.image_path).name
+    cleaned_path = original_path.with_name(f"{original_path.stem}_nobg.png")
+    db.delete(item)
+    db.commit()
+
+    for image_path in (original_path, cleaned_path):
+        try:
+            image_path.unlink(missing_ok=True)
+        except OSError:
+            logger.exception("Could not remove wardrobe image file %s", image_path)
+
+    return {"message": "Wardrobe item deleted successfully"}

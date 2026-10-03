@@ -1,18 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
 from . import models  # Register model metadata before creating tables.
 from .database import Base, engine
 from .routes_user import router as user_router
-from .routes_wardrobe import router as wardrobe_router
+from .routes_wardrobe import UPLOAD_DIR, router as wardrobe_router
 from .wardrobe import initialize_background_removal
 
 app = FastAPI(title="AI Virtual Stylist API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,6 +21,7 @@ app.add_middleware(
 
 app.include_router(wardrobe_router)
 app.include_router(user_router)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.on_event("startup")
